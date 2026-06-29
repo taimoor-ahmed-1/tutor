@@ -1,0 +1,68 @@
+# AI issue-triage agent.
+#
+# Assesses open `bug` issues and opens DRAFT pull requests with attempted fixes
+# for human review. Tuned via .github/issue-triage/config.yml and driven by
+# .github/issue-triage/prompt.md.
+#
+# Auth: requires a repository secret CLAUDE_CODE_OAUTH_TOKEN
+# (generate with `claude setup-token`, then add under
+#  Settings -> Secrets and variables -> Actions).
+name: Issue triage agent
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_issues:
+        description: "Override max issues to process this run"
+        required: false
+        default: ""
+  schedule:
+    # Daily at 06:00 UTC. Remove or adjust as needed.
+    - cron: "0 6 * * *"
+
+# Never run two triage passes at once (avoids duplicate branches/PRs).
+concurrency:
+  group: issue-triage
+  cancel-in-progress: false
+
+permissions:
+  contents: write        # create branches / push fix commits
+  pull-requests: write   # open draft PRs, add labels
+  issues: read           # read issues to triage
+  id-token: write        # required by claude-code-action
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Configure git identity
+        run: |
+          git config user.name "tutor-issue-agent[bot]"
+          git config user.email "tutor-issue-agent@users.noreply.github.com"
+
+      - name: Run triage agent
+        uses: anthropics/claude-code-action@v1
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MAX_ISSUES_OVERRIDE: ${{ github.event.inputs.max_issues }}
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Follow the instructions in .github/issue-triage/prompt.md exactly.
+            Read .github/issue-triage/config.yml for all settings.
+            If the environment variable MAX_ISSUES_OVERRIDE is set and non-empty,
+            use it instead of the max_issues value from config.yml.
+            You are running unattended: open DRAFT pull requests only and never
+            merge anything.
+          claude_args: |
+            --allowedTools "Bash,Read,Edit,Write,Glob,Grep"
+            --max-turns 60

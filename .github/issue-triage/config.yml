@@ -1,0 +1,36 @@
+# Configuration for the AI issue-triage agent (.github/workflows/issue-triage.yml).
+#
+# This file is read by the agent's prompt. Edit it to tune behaviour without
+# touching the workflow or the prompt.
+
+# Repository the agent triages and opens PRs against.
+# NOTE: pointed at the fork for end-to-end testing. Change back to
+# overhangio/tutor before upstreaming.
+repo: taimoor-ahmed-1/tutor
+
+# Branch that draft PRs target.
+base_branch: release
+
+# Only issues carrying ALL of these labels are considered.
+require_labels:
+  - bug
+
+# Issues carrying ANY of these labels are skipped (already handled / not actionable).
+skip_labels:
+  - wontfix
+  - duplicate
+  - "needs more info"
+  - question
+
+# Max issues to process in a single run. Keep small: each issue means a clone,
+# a fix attempt, and a draft PR. Raising this increases run time and cost.
+max_issues: 3
+
+# Prefix for branches the agent creates, e.g. ai-triage/issue-1234.
+branch_prefix: ai-triage/issue-
+
+# Label applied to every draft PR the agent opens, so humans can find them.
+pr_label: ai-generated
+
+# Skip an issue if an open PR already references it (avoids duplicate PRs).
+skip_if_open_pr_exists: true
