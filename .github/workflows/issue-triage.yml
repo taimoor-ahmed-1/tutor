@@ -4,8 +4,8 @@
 # for human review. Tuned via .github/issue-triage/config.yml and driven by
 # .github/issue-triage/prompt.md.
 #
-# Auth: requires a repository secret CLAUDE_CODE_OAUTH_TOKEN
-# (generate with `claude setup-token`, then add under
+# Auth: requires a repository secret ANTHROPIC_API_KEY
+# (create a key at https://console.anthropic.com/settings/keys, then add under
 #  Settings -> Secrets and variables -> Actions).
 name: Issue triage agent
 
@@ -55,7 +55,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           MAX_ISSUES_OVERRIDE: ${{ github.event.inputs.max_issues }}
         with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           # TEMP: surface the real error while debugging the first run. Remove after.
           show_full_output: true
           prompt: |
