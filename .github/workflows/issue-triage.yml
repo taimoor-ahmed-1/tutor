@@ -56,6 +56,8 @@ jobs:
           MAX_ISSUES_OVERRIDE: ${{ github.event.inputs.max_issues }}
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # TEMP: surface the real error while debugging the first run. Remove after.
+          show_full_output: true
           prompt: |
             Follow the instructions in .github/issue-triage/prompt.md exactly.
             Read .github/issue-triage/config.yml for all settings.
