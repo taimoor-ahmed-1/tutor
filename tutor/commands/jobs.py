@@ -263,7 +263,7 @@ def settheme(domains: list[str], theme_name: str) -> t.Iterable[tuple[str, str]]
     """
     Assign a theme to the LMS and the CMS.
 
-    To reset to the default theme , use 'default' as the theme name.
+    To reset to the default theme, use 'default' as the theme name.
     """
     yield ("lms", set_theme_template(theme_name, domains))
 
